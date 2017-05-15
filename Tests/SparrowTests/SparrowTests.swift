@@ -4,19 +4,17 @@ import HTTP
 
 public class SparrowTests : XCTestCase {
     func testEchoServer() throws {
-        let contentNegotiator = ContentNegotiator()
-        
+
         let router = Router { root in
-            root.preprocess { request in
-                try contentNegotiator.parse(request, deadline: 1.minute.fromNow())
-            }
             
             root.get { request in
                 return Response(status: .ok)
             }
             
             root.add(path: "echo") { echo in
+
                 echo.post { request in
+                    
                     return Response(status: .ok, content: request.content ?? .null)
                 }
             }
@@ -32,10 +30,7 @@ public class SparrowTests : XCTestCase {
                     }
                 }
             }
-            
-            root.postprocess { response, request in
-                try contentNegotiator.serialize(response, for: request, deadline: 1.minute.fromNow())
-            }
+
         }
 
         let server = Server(router: router)
